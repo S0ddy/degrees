@@ -63,11 +63,9 @@ def main():
     print("Data loaded.")
 
     source = person_id_for_name(input("Name: "))
-    # source = person_id_for_name('Tom Cruise')
     if source is None:
         sys.exit("Person not found.")
     target = person_id_for_name(input("Name: "))
-    # target = person_id_for_name('Kevin Bacon')
     if target is None:
         sys.exit("Person not found.")
 
@@ -93,15 +91,12 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    if not valid_source_and_target(source, target):
+        return None
+    
     num_explored = 0
 
-    # Keep track of number of states explored
-    num_explored = 0
-
-    # Initialize frontier to just the starting position
-    start = Node(state=source, parent=None, action=None)
-    frontier = QueueFrontier()
-    frontier.add(start)
+    frontier = initialize_frontier_to_starting_position(source)
 
     # Initialize an empty explored set
     explored = set()
@@ -117,15 +112,6 @@ def shortest_path(source, target):
         node = frontier.remove()
         num_explored += 1
 
-        # If node is the goal, then we have a solution
-        if node.state == target:
-            states = []
-            while node.parent is not None:
-                states.append(node.state)
-                node = node.parent
-            states.reverse()
-            return states
-
         # Mark node as explored
         explored.add(node.state)
 
@@ -135,19 +121,30 @@ def shortest_path(source, target):
             person_id = state[1]
             movie_id = state[0]
             if person_id == target:
-                result = []
-                result.append(state)
-                while node.parent is not None:
-                    result.append((node.action, node.state))
-                    node = node.parent
-                result.reverse()
-                return result
+                return generate_result_list(node, state)
             if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id)
                 frontier.add(child)
 
-    
-    return None
+def valid_source_and_target(source, target):
+    return (source is not None) and (target is not None) and (source != target)
+
+def initialize_frontier_to_starting_position(source):
+    start = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+    return frontier
+
+def generate_result_list(node, state):
+    result = []
+    if(state is not None):
+        result.append(state)
+
+    while node.parent is not None:
+        result.append((node.action, node.state))
+        node = node.parent
+    result.reverse()
+    return result
 
 
 def person_id_for_name(name):
