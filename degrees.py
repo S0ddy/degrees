@@ -109,7 +109,7 @@ def shortest_path(source, target):
             return None
 
         # Choose a node from the frontier
-        node = frontier.remove()
+        node = choose_node(frontier, source, target)
         num_explored += 1
 
         # Mark node as explored
@@ -121,10 +121,57 @@ def shortest_path(source, target):
             person_id = state[1]
             movie_id = state[0]
             if person_id == target:
+                print("Steps: ", num_explored)
                 return generate_result_list(node, state)
             if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id)
                 frontier.add(child)
+
+
+def choose_node(frontier, source, target):
+    """
+    Use age strategy for picking up a node.
+    """
+    #get the source and target career period. Find their oldest and most recent movies
+    source_career_period = get_career_period(source)
+    target_career_period = get_career_period(target)
+
+    if (getOverlap(source_career_period, target_career_period) != 0):
+        return frontier.remove() #use BFS strategy
+    else:
+        return age_strategy(frontier, source_career_period, target_career_period) #use A* strategy
+
+
+def get_career_period(person_id):
+    """
+    Returns an array with oldest and newest movies years [first_movie_date, latest_movie_date]
+    """
+        
+    releases_dates = []
+    career_period = []
+    movie_ids = people[person_id]["movies"]
+    
+    for movie_id in movie_ids:
+        releases_dates.append(movies[movie_id]['year'])
+    
+    career_period.append(min(releases_dates))
+    career_period.append(max(releases_dates))
+    
+    return career_period
+    
+         
+
+
+def age_strategy(frontier, source_career_period, target_career_period):
+    return frontier.remove() #replace with A* strategy 
+
+def getOverlap(a, b):
+    # Convert the values to integers for calculation
+    a_start, a_end = int(a[0]), int(a[1])
+    b_start, b_end = int(b[0]), int(b[1])
+    
+    # Calculate the overlap
+    return max(0, min(a_end, b_end) - max(a_start, b_start))
 
 
 def valid_source_and_target(source, target):
