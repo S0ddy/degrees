@@ -92,7 +92,7 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
     if not valid_source_and_target(source, target):
-        return None
+        return []
     
     num_explored = 0
 
@@ -126,8 +126,10 @@ def shortest_path(source, target):
                 child = Node(state=person_id, parent=node, action=movie_id)
                 frontier.add(child)
 
+
 def valid_source_and_target(source, target):
     return (source is not None) and (target is not None) and (source != target)
+
 
 def initialize_frontier_to_starting_position(source):
     start = Node(state=source, parent=None, action=None)
@@ -135,9 +137,10 @@ def initialize_frontier_to_starting_position(source):
     frontier.add(start)
     return frontier
 
+
 def generate_result_list(node, state):
     result = []
-    if(state is not None):
+    if (state is not None):
         result.append(state)
 
     while node.parent is not None:
